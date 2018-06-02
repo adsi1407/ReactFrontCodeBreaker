@@ -8,33 +8,62 @@ class App extends Component {
   constructor() {
     super()
     this.state = { 
-      secreto: "",
-      respuesta: ""
+      guardarSecreto: "",
+      adivinarSecreto: "",
+      respuestaGuardar: "",
+      respuestaAdivinar: ""
     }
 
+    this.txtCrearSecreto_OnTextChange = this.txtCrearSecreto_OnTextChange.bind(this);
+    this.btnGuardar_Click = this.btnGuardar_Click.bind(this);
+    this.txtAdivinarSecreto_OnTextChange = this.txtAdivinarSecreto_OnTextChange.bind(this);
     this.btnAdivinar_Click = this.btnAdivinar_Click.bind(this);
-    this.txtSecreto_OnTextChange = this.txtSecreto_OnTextChange.bind(this);
   }
 
-  txtSecreto_OnTextChange(event) {
+  txtCrearSecreto_OnTextChange(event) {
     this.setState({
-      secreto: event.target.value
+      guardarSecreto: event.target.value
     });
   }
 
-  btnAdivinar_Click() {
-    Axios.get('http://localhost:5000/adivinarsecreto/' + this.state.secreto)
+  txtAdivinarSecreto_OnTextChange(event) {
+    this.setState({
+      adivinarSecreto: event.target.value
+    });
+  }
+
+  btnGuardar_Click() {
+    Axios.post('http://localhost:5000/setsecreto', { secret: this.state.guardarSecreto })
       .then(res => {
         let response = res.data
 
         this.setState({
-          respuesta: response
+          respuestaGuardar: response
         });
       })
       .catch(err => {
 
         this.setState({
-          respuesta: "Hubo un error consultando el servicio"
+          respuestaGuardar: "Hubo un error guardando el secreto"
+        });
+
+        console.log(err)
+      })
+  }
+
+  btnAdivinar_Click() {
+    Axios.get('http://localhost:5000/adivinarsecreto/' + this.state.adivinarSecreto)
+      .then(res => {
+        let response = res.data
+
+        this.setState({
+          respuestaAdivinar: response
+        });
+      })
+      .catch(err => {
+
+        this.setState({
+          respuestaAdivinar: "Hubo un error adivinando el secreto"
         });
 
         console.log(err)
@@ -48,11 +77,19 @@ class App extends Component {
           <h1 className="App-title">David Santacoloma y Estoy Solo :/ - CodeBreaker</h1>
         </header>
         <br/>
-        Ingrese el secreto:
-        <input type="text" onChange={this.txtSecreto_OnTextChange} />
+        Crear secreto:
+        <input type="text" onChange={this.txtCrearSecreto_OnTextChange} />
+        <input type="submit" value="Guardar" onClick={this.btnGuardar_Click} />
+        <br/>
+        Resultado: <p>{this.state.respuestaGuardar}</p>
+        <br/>
+        <br/>
+        <br/>
+        Adivinar secreto:
+        <input type="text" onChange={this.txtAdivinarSecreto_OnTextChange} />
         <input type="submit" value="Adivinar" onClick={this.btnAdivinar_Click} />
         <br/>
-        Resultado: <p>{this.state.respuesta}</p>
+        Resultado: <p>{this.state.respuestaAdivinar}</p>
       </div>
     );
   }
